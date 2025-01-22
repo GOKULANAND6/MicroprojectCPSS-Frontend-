@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import './LandingPage.css';
 import carimage from './thar.jpeg';
 import bikeimage from './honda.png';
@@ -13,12 +14,17 @@ import video from './video.mp4';
 Modal.setAppElement('#root');
 
 function LandingPage2() {
+  const { id } = useParams();
+  const [records, setRecords] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [isVideoPoppedUp, setVideoPopUp] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [data, setData] = useState(null);
   const navigate = useNavigate();
-  const [data, setData] = useState();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -26,18 +32,23 @@ function LandingPage2() {
   const openClaimModal = () => setClaimModalOpen(true);
   const closeClaimModal = () => setClaimModalOpen(false);
 
+  const openVehicleModal = () => setVehicleModalOpen(true);
+  const closeVehicleModal = () => setVehicleModalOpen(false); 
+
   const handleProfileClick = () => {
     setProfileDropdownOpen(!profileDropdownOpen);
   };
 
+  const customerData = sessionStorage.getItem("loggedInUser");
+
   useEffect(() => {
-    const customerData = sessionStorage.getItem("loggedInUser");
-    if (customerData) {
+    if (!customerData) {
+      navigate('/logincustomer', { replace: true });
+    } else {
       const parsedCustomerData = JSON.parse(customerData);
-      setData(parsedCustomerData.customerId)
-      console.log(parsedCustomerData.customerId)
+      setData(parsedCustomerData.customerId);
     }
-  }, []);
+  }, [navigate, customerData]);
 
   const handleLogout = () => {
     Swal.fire({
@@ -49,10 +60,44 @@ function LandingPage2() {
       cancelButtonText: 'No, cancel!'
     }).then((result) => {
       if (result.isConfirmed) {
-        navigate('/');
+        sessionStorage.clear();
+        navigate('/logincustomer', { replace: true });
       }
     });
   };
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:8060/customer/all')
+      .then((response) => {
+        setRecords(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get("http://localhost:8060/registervehicles/all");
+        const profiles = response.data;
+        const profile = profiles.find(prod => prod.customerId === parseInt(id));
+        if (profile) {
+          setRecords(profile);
+        } else {
+          setError("Customer not found");
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError("Error fetching profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [id]);
 
   return (
     <div>
@@ -65,18 +110,17 @@ function LandingPage2() {
             Go Claim Insurance Pvt. Ltd
           </a>
           <div className="hidden md:flex space-x-4 items-center">
-            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
-              Home
-            </a>
-            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
-              About
-            </a>
-            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
-              Services
-            </a>
-            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
-              Contact
-            </a>
+            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">Home</a>
+            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">About</a>
+            <div className="relative">
+              <button onClick={openVehicleModal} className="text-gray-800 hover:text-blue-500 flex items-center">
+                <span className="mr-2 font-bold">My Vehicles</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+            <a href={`/viewpolicy/${data}`} className="text-gray-800 hover:text-blue-500 font-bold">My Policies</a>
             <div className="relative">
               <button onClick={openClaimModal} className="text-gray-800 hover:text-blue-500 flex items-center">
                 <span className="mr-2 font-bold">Claim</span>
@@ -86,17 +130,16 @@ function LandingPage2() {
               </button>
             </div>
             <div className="relative">
-            <button onClick={handleProfileClick} className="flex items-center text-gray-800 hover:text-blue-500">
-              <img src="https://cdn1.iconfinder.com/data/icons/basic-ui-set-v5-user-outline/64/Account_profile_user_avatar_small-512.png" alt="Profile" className="h-10 w-10 rounded-full border-2 border-gray-300" />
-            </button>
-            {profileDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                <Link to={`/viewcustomerprofile/${data}`} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Your Info</Link>
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
-              </div>
+              <button onClick={handleProfileClick} className="flex items-center text-gray-800 hover:text-blue-500">
+                <img src="https://cdn1.iconfinder.com/data/icons/basic-ui-set-v5-user-outline/64/Account_profile_user_avatar_small-512.png" alt="Profile" className="h-10 w-10 rounded-full border-2 border-gray-300" />
+              </button>
+              {profileDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                  <Link to={`/viewcustomerprofile/${data}`} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Your Info</Link>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
+                </div>
               )}
             </div>
-
           </div>
           <button className="md:hidden px-4 py-2 text-gray-800 hover:text-blue-500">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +152,7 @@ function LandingPage2() {
           <a href="/" className="block text-gray-800 hover:text-blue-500">Home</a>
           <a href="/" className="block text-gray-800 hover:text-blue-500">About</a>
           <a href="/" className="block text-gray-800 hover:text-blue-500">Services</a>
-          <a href="/" className="block text-gray-800 hover:text-blue-500">Contact</a>
+          <a href={`/viewpolicy/${data}`} className="block text-gray-800 hover:text-blue-500">My Policies</a>
           <button onClick={openClaimModal} className="block text-gray-800 hover:text-blue-500 flex items-center">
             <span className="mr-2 font-bold">Claim</span>
           </button>
@@ -117,30 +160,26 @@ function LandingPage2() {
       </nav>
 
       <div className="heading">
-        <h1>
-          <span id="gold">Buy Insurance</span>
-        </h1>
+        <h1><span id="gold">Buy Insurance</span></h1>
       </div>
 
       <div className="image-section flex flex-wrap justify-center gap-8 p-4">
-        <Link to="/buycarinsurance" className="text-center">
+        <Link to={`/buycarinsurance/${data}`} className="text-center">
           <img src={carimage} alt="Car" className="h-24 w-24 rounded-full border-4 border-white shadow-lg" />
           <div className="text-white text-lg mt-2">Car Insurance</div>
         </Link>
-        <Link to="/buycarinsurance" className="text-center">
+        <Link to="" className="text-center">
           <img src={bikeimage} alt="Bike" className="h-24 w-24 rounded-full border-4 border-white shadow-lg" />
           <div className="text-white text-lg mt-2">Bike Insurance</div>
         </Link>
-        <Link to="/buycarinsurance" className="text-center">
+        <Link to="" className="text-center">
           <img src={healthimage} alt="Health" className="h-24 w-24 rounded-full border-4 border-white shadow-lg" />
           <div className="text-white text-lg mt-2">Health Insurance</div>
         </Link>
       </div>
 
       <div className="content">
-        <h1>
-          Everything is for your <span id="gold">Home & Future</span>
-        </h1>
+        <h1>Everything is for your <span id="gold">Home & Future</span></h1>
         <p>10,00,000+ Successful Customers</p>
       </div>
 
@@ -162,29 +201,44 @@ function LandingPage2() {
           </button>
           <h2 className="text-xl font-semibold mb-4 text-center">Select Claim Option</h2>
           <div className="flex flex-col space-y-4">
-            <Link to="/fileclaim" className="block text-center text-blue-500 text-lg">
-              File a Claim
-            </Link>
-            <Link to="/viewclaimstatus" className="block text-center text-blue-500 text-lg">
-              Claim Status
-            </Link>
-            <Link to="/viewsettlementstatus" className="block text-center text-blue-500 text-lg">
-              Settlement Status
-            </Link>
+            <Link to="/fileclaim" className="block text-center text-blue-500 text-lg">File a Claim</Link>
+            <Link to="/viewclaimstatus" className="block text-center text-blue-500 text-lg">Claim Status</Link>
+            <Link to="/viewsettlementstatus" className="block text-center text-blue-500 text-lg">Settlement Status</Link>
           </div>
         </div>
       </Modal>
 
-      <br></br><br></br>
+      <Modal
+        isOpen={vehicleModalOpen}
+        onRequestClose={closeVehicleModal}
+        className="fixed inset-0 flex items-center justify-center p-4 bg-black/30"
+        overlayClassName="fixed inset-0 bg-black/30"
+      >
+        <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 relative">
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            onClick={closeVehicleModal}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <h2 className="text-xl font-semibold mb-4 text-center">Manage Vehicles</h2>
+          <div className="flex flex-col space-y-4">
+            <Link to="/registervehicles" className="block text-center text-blue-500 text-lg">Add new Vehicle</Link>
+            <Link to={`/viewregisteredvehicles/${data}`} className="block text-center text-blue-500 text-lg">View my Vehicles</Link>
+          </div>
+        </div>
+      </Modal>
 
       <div className="space-y-3 text-center">
-        <h1 className="text-3xl text-gray-800 font-semibold">
-          Why Insurance?
-        </h1>
+        <h1 className="text-3xl text-gray-800 font-semibold">Why Insurance?</h1>
         <div className="flex-1 max-w-xl mx-auto mt-14 xl:mt-0">
           <div className="relative">
             <button
-              className="absolute w-16 h-16 rounded-full inset-0 m-auto duration-150 bg-blue-500 hover:bg-blue-600 ring-offset-2 focus:ring text-white" id="video"
+              className="absolute w-16 h-16 rounded-full inset-0 m-auto duration-150 bg-blue-500 hover:bg-blue-600 ring-offset-2 focus:ring text-white"
+              id="video"
               onClick={() => setVideoPopUp(true)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 m-auto">
@@ -206,15 +260,13 @@ function LandingPage2() {
                   <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                 </svg>
               </button>
-              <video className="rounded-lg w-full max-w-2xl" controls autoPlay={true}>
+              <video className="rounded-lg w-full max-w-2xl" controls autoPlay>
                 <source src={video} type="video/mp4" />
               </video>
             </div>
           </div>
         )}
       </div>
-
-      <br></br><br></br>
 
       <About />
       <Footer />

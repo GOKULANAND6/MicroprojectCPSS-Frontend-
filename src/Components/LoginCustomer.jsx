@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import Logo from './back.png';
 
 function LoginCustomer() {
     const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -56,13 +57,17 @@ function LoginCustomer() {
         }
     };
 
+    const handleGoBack = () => {
+        navigate(-1); 
+      };
+
     return (
         <div className="bg-gray-100 flex flex-col min-h-screen">
-            <header className="bg-teal-600 text-white py-4">
-                <div className="container mx-auto text-center text-2xl font-bold rounded">
-                    
-                    Customer Login
-                </div>
+            <header className="bg-teal-600 text-white p-4 flex items-center justify-between rounded-lg shadow-md mb-6">
+                <button className="bg-white text-blue-500 p-2 rounded-full hover:bg-gray-200 transition-colors" onClick={handleGoBack}>
+                <img src={Logo} alt="Logo" className="w-8 h-8" />
+                </button>
+                <h1 className="text-2xl font-bold">Customer Login</h1>
             </header>
 
             <main className="flex-grow flex items-center justify-center">

@@ -4,6 +4,7 @@ import LandingPage from './LandingPage'
 import LandingPage2 from './LandingPage2'
 import LoginCustomer from './LoginCustomer'
 import SignupCustomer from './SignupCustomer'
+import RegisterVehicles from './RegisterVehicles'
 import BuyCarInsurance from './BuyCarInsurance'
 import FileClaim from './FileClaim'
 import ViewClaimStatus from './ViewClaimStatus'
@@ -20,6 +21,7 @@ import ViewClaim from './ViewClaim'
 import Settlement from './Settlement'
 import ViewCustomerProfile from './ViewCustomerProfile'
 import ViewAdminProfile from './ViewAdminProfile'
+import ViewRegisteredVehicles from './ViewRegisteredVehicles'
 
 function AppRouter() {
   return (
@@ -31,7 +33,9 @@ function AppRouter() {
             <Route path="/logincustomer" element={<LoginCustomer />} />
             <Route path="/loginadmin" element={<LoginAdmin />} />
             <Route path="/signupcustomer" element={<SignupCustomer />} />
-            <Route path="/buycarinsurance" element={<BuyCarInsurance />} />
+            <Route path="/registervehicles" element={<RegisterVehicles />} />
+            <Route path="/viewregisteredvehicles/:id" element={<ViewRegisteredVehicles />} />
+            <Route path="/buycarinsurance/:id" element={<BuyCarInsurance />} />
             <Route path="/fileclaim" element={<FileClaim />} />
             <Route path="/viewclaimstatus" element={<ViewClaimStatus />} />
             <Route path="/viewsettlementstatus" element={<ViewSettlementStatus />} />

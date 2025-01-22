@@ -5,23 +5,34 @@ import { AiOutlineArrowLeft } from 'react-icons/ai';
 
 function ViewClaim() {
   const [records, setRecords] = useState([]);
+  const [settlements, setSettlements] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchClaims();
+    fetchSettlements();
   }, []);
 
-  const fetchClaims = () => {
-    axios
-      .get("http://localhost:8060/claim/all")
-      .then((response) => {
-        setRecords(response.data);
-      })
-      .catch((err) => {
-        console.log("Error fetching claims:", err);
-        setError("Error fetching claims.");
-      });
+  const fetchClaims = async () => {
+    try {
+      const response = await axios.get("http://localhost:8060/claim/all");
+      const sortedRecords = response.data.sort((a, b) => b.claimId - a.claimId);
+      setRecords(sortedRecords);
+    } catch (err) {
+      console.error("Error fetching claims:", err);
+      setError("Error fetching claims.");
+    }
+  };
+
+  const fetchSettlements = async () => {
+    try {
+      const response = await axios.get("http://localhost:8060/settlement/all");
+      setSettlements(response.data);
+    } catch (err) {
+      console.error("Error fetching settlements:", err);
+      setError("Error fetching settlements.");
+    }
   };
 
   const handleSettlementClick = (id, claim) => {
@@ -30,6 +41,11 @@ function ViewClaim() {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const getSettlementStatus = (claimId) => {
+    const settlement = settlements.find(s => s.insuranceclaim?.claimId === claimId);
+    return settlement ? settlement.settlementStatus : null;
   };
 
   return (
@@ -51,60 +67,61 @@ function ViewClaim() {
       )}
 
       <div className="p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {records.map((d, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md p-6">
-              <div className="mb-4">
-                <h2 className="text-lg font-bold">Claim ID: {d.claimId}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {records.map((d, i) => {
+            const settlementStatus = getSettlementStatus(d.claimId);
+            const isSettled = settlementStatus === "Credited";
+            const isRejected = d.claimStatus === "Rejected";
+            const isDisabled = isRejected || isSettled;
+
+            let buttonClass = "bg-teal-600 hover:bg-teal-700";
+            let buttonText = "Settle Amount";
+
+            if (isRejected) {
+              buttonClass = "bg-red-600 cursor-not-allowed";
+              buttonText = "Rejected";
+            } else if (isSettled) {
+              buttonClass = "bg-blue-600 cursor-not-allowed";
+              buttonText = "Payment Done";
+            }
+
+            return (
+              <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold">Claim ID: {d.claimId}</h2>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    { label: "Claim Issue", value: d.claimIssue },
+                    { label: "Customer Name", value: d.carinsurance?.customer?.customerName },
+                    { label: "Customer Email", value: d.carinsurance?.customer?.customerEmail },
+                    { label: "Customer Mobile", value: d.carinsurance?.customer?.customerMobile },
+                    { label: "Car Brand", value: d.carMake },
+                    { label: "Car Name", value: d.carName },
+                    { label: "Car Model", value: d.carModel },
+                    { label: "Car Year", value: d.carYear },
+                    { label: "Car Registered On", value: d.carBuyingdate },
+                    { label: "Car Number", value: d.carNumber },
+                    { label: "Claim Status", value: d.claimStatus }
+                  ].map((item, index) => (
+                    <div key={index} className="flex justify-between">
+                      <span className="font-medium text-gray-600">{item.label}:</span>
+                      <span className={`font-semibold ${item.label === "Claim Status" && item.value === 'Rejected' ? 'text-red-600' : item.label === "Claim Status" && item.value === 'Credited' ? 'text-green-600' : item.label === "Claim Status" && item.value === 'Approved' ? 'text-blue-600' : 'text-gray-700'}`}>{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <button
+                    className={`w-full py-2 rounded-lg text-white ${buttonClass}`}
+                    onClick={() => !isDisabled && handleSettlementClick(d.claimId, d)}
+                    disabled={isDisabled}
+                  >
+                    {buttonText}
+                  </button>
+                </div>
               </div>
-              <div className="space-y-2">
-                <div>
-                  <strong className="font-medium">Claim Issue:</strong> {d.claimIssue}
-                </div>
-                <div>
-                  <strong className="font-medium">Customer Name:</strong> {d.carinsurance?.customer?.customerName}
-                </div>
-                <div>
-                  <strong className="font-medium">Customer Email:</strong> {d.carinsurance?.customer?.customerEmail}
-                </div>
-                <div>
-                  <strong className="font-medium">Customer Mobile:</strong> {d.carinsurance?.customer?.customerMobile}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Brand:</strong> {d.carMake}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Name:</strong> {d.carName}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Model:</strong> {d.carModel}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Year:</strong> {d.carYear}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Registered On:</strong> {d.carBuyingdate}
-                </div>
-                <div>
-                  <strong className="font-medium">Car Number:</strong> {d.carNumber}
-                </div>
-                <div>
-                  <strong className="font-medium">Claim Status:</strong>
-                  <span className={`font-semibold ${d.claimStatus === 'Credited' ? 'text-green-600' : d.claimStatus === 'Approved' ? 'text-blue-600' : 'text-gray-700'}`}>
-                    {d.claimStatus}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <button
-                  className={`w-full py-2 rounded-lg text-white ${d.claimStatus === "Credited" ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'}`}
-                  onClick={() => handleSettlementClick(d.claimId, d)}
-                >
-                  {d.claimStatus === "Credited" ? "Payment Done" : "Settle Amount"}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

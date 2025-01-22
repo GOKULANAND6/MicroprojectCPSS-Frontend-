@@ -2,84 +2,42 @@ import React from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import Swal from 'sweetalert2';
+import Logo from './back.png';
 
 const SignupCustomer = () => {
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-    const [inputData, setInputData] = useState({
-        customerName: '',
-        customerEmail: '',
-        customerMobile: '',
-        customerAddress: '',
-        customerPincode: '',
-        customerDob: '',
-        customerAge: '',
-        customerGender: '',
-        customerPassword: ''
-    });
 
-    const onSubmit = async () => {
-        const validationResult = validateValues(inputData);
-        
-        if (validationResult.isValid) {
-            try {
-                const res = await axios.post('http://localhost:8060/customer', inputData);
-                Swal.fire('Success', 'Data added successfully', 'success');
-                navigate('/logincustomer');
-                console.log(res.data);
-            } catch (err) {
-                Swal.fire('Error', 'Failed to add data', 'error');
-                console.log(err);
-            }
-        } else {
-            Swal.fire('Validation Error', validationResult.message, 'error');
+    const onSubmit = async (data) => {
+        try {
+            const res = await axios.post('http://localhost:8060/customer', data);
+            Swal.fire('Success', 'Data added successfully', 'success');
+            navigate('/logincustomer');
+            console.log(res.data);
+        } catch (err) {
+            Swal.fire('Error', 'Failed to add data', 'error');
+            console.log(err);
         }
     };
 
-    const validateValues = (data) => {
-        if (!data.customerName.trim()) {
-            return { isValid: false, message: 'Please enter the Customer Name!' };
-        }
-        if (!data.customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customerEmail)) {
-            return { isValid: false, message: 'Please enter a valid Customer Email!' };
-        }
-        if (!data.customerMobile.trim() || !/^[0-9]{10}$/.test(data.customerMobile)) {
-            return { isValid: false, message: 'Please enter a valid Customer Mobile!' };
-        }
-        if (!data.customerAddress.trim()) {
-            return { isValid: false, message: 'Please enter the Customer Address!' };
-        }
-        if (!data.customerPincode.trim() || !/^[0-9]{6}$/.test(data.customerPincode)) {
-            return { isValid: false, message: 'Please enter a valid Customer Pincode!' };
-        }
-        if (!data.customerDob.trim()) {
-            return { isValid: false, message: 'Please enter the Customer Date of Birth!' };
-        }
-        if (!data.customerAge || data.customerAge < 1) {
-            return { isValid: false, message: 'Please enter a valid Customer Age!' };
-        }
-        if (!data.customerGender) {
-            return { isValid: false, message: 'Please select the Customer Gender!' };
-        }
-        if (!data.customerPassword.trim() || data.customerPassword.length < 6) {
-            return { isValid: false, message: 'Please enter a valid Customer Password!' };
-        }
-        return { isValid: true, message: '' };
+    const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Please enter a valid email address';
+    const validateMobile = (value) => /^[0-9]{10}$/.test(value) || 'Mobile number must be 10 digits';
+    const validatePincode = (value) => /^[0-9]{6}$/.test(value) || 'Pincode must be 6 digits';
+    const validateDob = (value) => {
+        const today = new Date();
+        const dob = new Date(value);
+        const age = today.getFullYear() - dob.getFullYear();
+        return age >= 18 || 'You must be at least 18 years old';
     };
 
     return (
         <div className="bg-gray-100 flex flex-col min-h-screen">
-            <header className="bg-teal-600 text-white py-4 rounded-b-lg flex justify-between items-center px-4">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="bg-teal-700 px-4 py-2 rounded-lg shadow-md hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                    Back
+            <header className="bg-teal-600 text-white p-4 flex items-center justify-between rounded-lg shadow-md mb-6">
+                <button className="bg-white text-blue-500 p-2 rounded-full hover:bg-gray-200 transition-colors" onClick={() => navigate(-1)}>
+                    <img src={Logo} alt="Logo" className="w-8 h-8" />
                 </button>
-                <div className="text-center text-2xl font-bold">Customer Registration Form</div>
-                <div></div>
+                <h1 className="text-2xl font-bold">Customer Registration Form</h1>
             </header>
 
             <main className="flex-grow flex items-center justify-center">
@@ -90,94 +48,99 @@ const SignupCustomer = () => {
                             <input
                                 type="text"
                                 id="customerName"
-                                {...register('customerName')}
+                                {...register('customerName', { required: 'Customer Name is required' })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerName: e.target.value })}
                             />
+                            {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-2">Customer Email</label>
                             <input
                                 type="email"
                                 id="customerEmail"
-                                {...register('customerEmail')}
+                                {...register('customerEmail', { 
+                                    required: 'Email is required', 
+                                    validate: validateEmail 
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerEmail: e.target.value })}
                             />
+                            {errors.customerEmail && <p className="text-red-500 text-xs mt-1">{errors.customerEmail.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerMobile" className="block text-sm font-medium text-gray-700 mb-2">Customer Mobile</label>
                             <input
                                 type="text"
                                 id="customerMobile"
-                                {...register('customerMobile')}
+                                {...register('customerMobile', { 
+                                    required: 'Mobile number is required', 
+                                    validate: validateMobile 
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerMobile: e.target.value })}
                             />
+                            {errors.customerMobile && <p className="text-red-500 text-xs mt-1">{errors.customerMobile.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerAddress" className="block text-sm font-medium text-gray-700 mb-2">Customer Address</label>
                             <input
                                 type="text"
                                 id="customerAddress"
-                                {...register('customerAddress')}
+                                {...register('customerAddress', { required: 'Address is required' })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerAddress: e.target.value })}
                             />
+                            {errors.customerAddress && <p className="text-red-500 text-xs mt-1">{errors.customerAddress.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerPincode" className="block text-sm font-medium text-gray-700 mb-2">Customer Pincode</label>
                             <input
                                 type="text"
                                 id="customerPincode"
-                                {...register('customerPincode')}
+                                {...register('customerPincode', { 
+                                    required: 'Pincode is required', 
+                                    validate: validatePincode 
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerPincode: e.target.value })}
                             />
+                            {errors.customerPincode && <p className="text-red-500 text-xs mt-1">{errors.customerPincode.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerDob" className="block text-sm font-medium text-gray-700 mb-2">Customer Date of Birth</label>
                             <input
                                 type="date"
                                 id="customerDob"
-                                {...register('customerDob')}
+                                {...register('customerDob', { 
+                                    required: 'Date of Birth is required', 
+                                    validate: validateDob 
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerDob: e.target.value })}
                             />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="customerAge" className="block text-sm font-medium text-gray-700 mb-2">Customer Age</label>
-                            <input
-                                type="number"
-                                id="customerAge"
-                                {...register('customerAge')}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerAge: e.target.value })}
-                            />
+                            {errors.customerDob && <p className="text-red-500 text-xs mt-1">{errors.customerDob.message}</p>}
                         </div>
                         <div className="mb-4">
                             <label htmlFor="customerGender" className="block text-sm font-medium text-gray-700 mb-2">Customer Gender</label>
                             <select
                                 id="customerGender"
-                                {...register('customerGender')}
+                                {...register('customerGender', { required: 'Gender is required' })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerGender: e.target.value })}
                             >
                                 <option value="">Select Gender</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="other">Other</option>
                             </select>
+                            {errors.customerGender && <p className="text-red-500 text-xs mt-1">{errors.customerGender.message}</p>}
                         </div>
                         <div className="mb-6">
                             <label htmlFor="customerPassword" className="block text-sm font-medium text-gray-700 mb-2">Customer Password</label>
                             <input
                                 type="password"
                                 id="customerPassword"
-                                {...register('customerPassword')}
+                                {...register('customerPassword', { 
+                                    required: 'Password is required', 
+                                    minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                onChange={(e) => setInputData({ ...inputData, customerPassword: e.target.value })}
                             />
+                            {errors.customerPassword && <p className="text-red-500 text-xs mt-1">{errors.customerPassword.message}</p>}
                         </div>
                         <button
                             type="submit"

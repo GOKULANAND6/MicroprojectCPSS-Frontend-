@@ -117,15 +117,6 @@ function ViewCustomerProfile() {
                     {record.customerDob}
                   </td>
                 </tr>
-                <tr className="bg-white border-b border-gray-200">
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">
-                    <FaCalendar className="inline mr-2" />
-                    Customer Age:
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-900 text-sm">
-                    {record.customerAge}
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>

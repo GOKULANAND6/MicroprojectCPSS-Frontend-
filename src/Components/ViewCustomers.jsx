@@ -46,7 +46,6 @@ function ViewCustomer() {
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Address</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Pincode</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date of Birth</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Age</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
@@ -60,7 +59,6 @@ function ViewCustomer() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{d.customerAddress}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{d.customerPincode}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{d.customerDob}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{d.customerAge}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <Link to={`/viewpolicy/${d.customerId}`}>
                     <button className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition duration-300">

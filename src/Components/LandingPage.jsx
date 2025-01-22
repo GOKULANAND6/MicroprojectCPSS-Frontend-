@@ -37,7 +37,7 @@ function LandingPage() {
             <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
               Home
             </a>
-            <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">
+            <a href="#about" className="text-gray-800 hover:text-blue-500 font-bold">
               About
             </a>
             <a href="/" className="text-gray-800 hover:text-blue-500 font-bold">

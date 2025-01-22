@@ -18,7 +18,7 @@ function ViewClaimNotification() {
       .get("http://localhost:8060/claim/all")
       .then((response) => {
         setRecords(response.data);
-        setFilteredRecords(response.data); // Initialize filtered records
+        setFilteredRecords(response.data);
       })
       .catch((err) => {
         console.log(err);
@@ -72,6 +72,12 @@ function ViewClaimNotification() {
         </div>
         <h1 className="text-2xl font-bold ml-auto">Applied for Insurance Claim</h1>
       </header>
+
+      {filteredRecords.length === 0 && searchTerm && (
+        <div className="text-center text-lg font-semibold text-red-600">
+          No such customer is there
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredRecords.map((claim, index) => (
@@ -144,11 +150,15 @@ function ViewClaimNotification() {
                 </div>
               </div>
               
-              <Link to={`/processclaim?carNumber=${claim.carNumber}`}>
+              <Link
+                to={`/processclaim?carNumber=${claim.carNumber}`}
+                state={{ claimJson: JSON.stringify(claim) }} // Pass the claim data to the settlement page
+              >
                 <button
-                  className={`w-full py-2 mt-2 rounded-lg text-white font-bold bg-sky-500 hover:bg-sky-600`}
+                  className={`w-full py-2 mt-2 rounded-lg font-bold ${claim.claimStatus === 'Credited' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-sky-500 text-white hover:bg-sky-600'}`}
+                  disabled={claim.claimStatus === 'Credited'} // Disable if claim is credited
                 >
-                  Process
+                  {claim.claimStatus === 'Credited' ? 'Payment Done' : 'Process'}
                 </button>
               </Link>
             </div>

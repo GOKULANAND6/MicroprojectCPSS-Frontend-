@@ -16,6 +16,7 @@ const FaqsCard = (props) => {
     return (
         <div 
             className="space-y-3 mt-5 overflow-hidden border-b"
+            id="about"
             key={idx}
             onClick={handleOpenAnswer}
         >

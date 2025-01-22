@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import Logo from './back.png'
 
 function UpdateStatus() {
   const { id } = useParams();
@@ -47,8 +48,11 @@ function UpdateStatus() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       
-      <header className="bg-teal-500 text-white py-4 px-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Update the Claim Status</h1>
+      <header className="bg-teal-600 text-white p-4 flex items-center justify-between rounded-lg shadow-md mb-6">
+        <button className="bg-white text-blue-500 p-2 rounded-full hover:bg-gray-200 transition-colors" onClick={handleGoBack}>
+          <img src={Logo} alt="Logo" className="w-8 h-8" />
+        </button>
+        <h1 className="text-2xl font-bold">Update the Claim Status</h1>
       </header>
 
       <div className="flex-grow p-6 flex items-center justify-center">

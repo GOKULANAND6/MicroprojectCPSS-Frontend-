@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import './LandingPage.css';
-import axios from "axios";
-import { FaBell } from 'react-icons/fa'
+import axios from 'axios';
+import { FaBell } from 'react-icons/fa';
 import carimage from './thar.jpeg';
 import bikeimage from './honda.png';
 import healthimage from './health.jpg';
@@ -21,7 +21,6 @@ function LandingPage3() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [hasNewClaims, setHasNewClaims] = useState(false);
   const navigate = useNavigate();
-  const [records, setRecords] = useState();
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -73,37 +72,38 @@ function LandingPage3() {
             Go Claim Insurance Pvt. Ltd
           </a>
           <div className="hidden md:flex space-x-4 items-center">
-
-            <Link to="/viewcustomers"><a  className="text-gray-800 hover:text-blue-500 font-bold">
-              View Customer Details
-            </a></Link>   
+            <Link to="/viewcustomers">
+              <a className="text-gray-800 hover:text-blue-500 font-bold">
+                View Customer Details
+              </a>
+            </Link>
 
             <Link to="/viewclaimnotification" className="relative inline-block">
-                <FaBell className="h-6 w-6 text-gray-800 hover:text-blue-500" />
-                {hasNewClaims && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-1">
-                    New
-                  </span>
-                )}
-            </Link>   
+              <FaBell className="h-6 w-6 text-gray-800 hover:text-blue-500" />
+              {hasNewClaims && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-1">
+                  New
+                </span>
+              )}
+            </Link>
 
-            <Link to="/settlement"><a href="/viewcustomers" className="text-gray-800 hover:text-blue-500 font-bold">
-              Settle Amount
-            </a></Link>       
+            <Link to="/settlement">
+              <a href="/viewcustomers" className="text-gray-800 hover:text-blue-500 font-bold">
+                Settle Amount
+              </a>
+            </Link>
 
-            
             <div className="relative">
-            <button onClick={handleProfileClick} className="flex items-center text-gray-800 hover:text-blue-500">
-              <img src="https://cdn1.iconfinder.com/data/icons/basic-ui-set-v5-user-outline/64/Account_profile_user_avatar_small-512.png" alt="Profile" className="h-10 w-10 rounded-full border-2 border-gray-300" />
-            </button>
-            {profileDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                <Link to="/viewadminprofile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Your Info</Link>
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
-              </div>
+              <button onClick={handleProfileClick} className="flex items-center text-gray-800 hover:text-blue-500">
+                <img src="https://cdn1.iconfinder.com/data/icons/basic-ui-set-v5-user-outline/64/Account_profile_user_avatar_small-512.png" alt="Profile" className="h-10 w-10 rounded-full border-2 border-gray-300" />
+              </button>
+              {profileDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                  <Link to="/viewadminprofile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">Your Info</Link>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
+                </div>
               )}
             </div>
-
           </div>
           <button className="md:hidden px-4 py-2 text-gray-800 hover:text-blue-500">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,62 +169,36 @@ function LandingPage3() {
           </button>
           <h2 className="text-xl font-semibold mb-4 text-center">Select Claim Option</h2>
           <div className="flex flex-col space-y-4">
-            <Link to="/fileclaim" className="block text-center text-blue-500 text-lg">
-              File a Claim
-            </Link>
-            <Link to="/viewclaimstatus" className="block text-center text-blue-500 text-lg">
-              Claim Status
-            </Link>
-            <Link to="/viewsettlementstatus" className="block text-center text-blue-500 text-lg">
-              Settlement Status
-            </Link>
+            <Link to="/fileclaim" className="block text-center text-blue-500 hover:underline">File a Claim</Link>
+            <Link to="/viewclaims" className="block text-center text-blue-500 hover:underline">View Claims</Link>
           </div>
         </div>
       </Modal>
 
-      <br></br><br></br>
+      <About />
+      <Footer />
 
-      <div className="space-y-3 text-center">
-        <h1 className="text-3xl text-gray-800 font-semibold">
-          Why Insurance?
-        </h1>
-        <div className="flex-1 max-w-xl mx-auto mt-14 xl:mt-0">
-          <div className="relative">
-            <button
-              className="absolute w-16 h-16 rounded-full inset-0 m-auto duration-150 bg-blue-500 hover:bg-blue-600 ring-offset-2 focus:ring text-white" id="video"
-              onClick={() => setVideoPopUp(true)}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 m-auto">
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
+      <div>
         {isVideoPoppedUp && (
-          <div className="fixed inset-0 w-full h-full flex items-center justify-center">
-            <div className="absolute inset-0 w-full h-full bg-black/50" onClick={() => setVideoPopUp(false)}></div>
-            <div className="px-4 relative">
+          <div className="video-popup fixed inset-0 flex items-center justify-center z-50">
+            <div className="relative w-full max-w-2xl bg-black">
+              <video controls autoPlay className="w-full h-auto">
+                <source src={video} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
               <button
-                className="w-12 h-12 mb-5 rounded-full duration-150 bg-gray-800 hover:bg-gray-700 text-white"
+                type="button"
+                className="absolute top-4 right-4 text-white text-2xl"
                 onClick={() => setVideoPopUp(false)}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 m-auto">
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <video className="rounded-lg w-full max-w-2xl" controls autoPlay={true}>
-                <source src={video} type="video/mp4" />
-              </video>
             </div>
           </div>
         )}
       </div>
-
-      <br></br><br></br>
-
-      <About />
-      <Footer />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { AiOutlineUser, AiOutlineLock } from 'react-icons/ai';
+import Logo from './back.png';
 
 function LoginAdmin() {
   const navigate = useNavigate();
@@ -33,10 +34,6 @@ function LoginAdmin() {
     fetchUsers();
   }, []);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const { adminName, adminPassword } = inputData;
@@ -62,17 +59,18 @@ function LoginAdmin() {
     }
   };
 
+  const handleGoBack = () => {
+    navigate(-1); 
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="bg-teal-600 text-white p-4 flex items-center justify-between">
-        <button
-          onClick={handleGoBack}
-          className="bg-white text-teal-600 px-4 py-2 rounded hover:bg-gray-200"
-        >
-          Go Back
+      <header className="bg-teal-600 text-white p-4 flex items-center justify-between rounded-lg shadow-md mb-6">
+        <button className="bg-white text-blue-500 p-2 rounded-full hover:bg-gray-200 transition-colors" onClick={handleGoBack}>
+          <img src={Logo} alt="Logo" className="w-8 h-8" />
         </button>
         <h1 className="text-2xl font-bold">Admin Login</h1>
-      </div>
+      </header>
 
       <div className="flex-grow flex items-center justify-center bg-gray-100 p-6">
         <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">

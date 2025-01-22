@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineArrowLeft } from "react-icons/ai";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 
 function ViewCars({ onCarNumbersFetched }) {
   const [records, setRecords] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(3);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,14 +14,33 @@ function ViewCars({ onCarNumbersFetched }) {
       .then((response) => {
         const fetchedRecords = response.data;
         setRecords(fetchedRecords);
-        const fetchedCarNumbers = fetchedRecords.map(car => car.carNumber);
-        onCarNumbersFetched(fetchedRecords); // Pass full records
+        onCarNumbersFetched(fetchedRecords);
       })
       .catch((error) => console.error(error));
   }, [onCarNumbersFetched]);
 
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = records.slice(indexOfFirstRecord, indexOfLastRecord);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const totalPages = Math.ceil(records.length / recordsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      paginate(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      paginate(currentPage - 1);
+    }
+  };
+
   const handleGoBack = () => {
-    navigate(-1); 
+    navigate(-1);
   };
 
   return (
@@ -31,7 +52,7 @@ function ViewCars({ onCarNumbersFetched }) {
         >
           <AiOutlineArrowLeft size={24} />
         </button>
-        <h1 className="text-2xl font-bold">Vehicle Database</h1>
+        <h1 className="text-2xl font-bold">RTO Vehicle Database</h1>
       </header>
 
       <div className="overflow-x-auto">
@@ -48,7 +69,7 @@ function ViewCars({ onCarNumbersFetched }) {
             </tr>
           </thead>
           <tbody>
-            {records.map((d, i) => (
+            {currentRecords.map((d, i) => (
               <tr key={i} className="border-b border-gray-200">
                 <td className="py-3 px-4 text-gray-600">{d.carId}</td>
                 <td className="py-3 px-4 text-gray-600">{d.carMake}</td>
@@ -61,6 +82,24 @@ function ViewCars({ onCarNumbersFetched }) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className="bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition-colors"
+        >
+          <AiOutlineArrowLeft size={24} />
+        </button>
+        <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className="bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition-colors"
+        >
+          <AiOutlineArrowRight size={24} />
+        </button>
       </div>
     </div>
   );
